@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Cart — NEXUS SHOP</title>
+  <meta name="description" content="Review your cart items and proceed to checkout." />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<!-- ─── Navbar ─── -->
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">NEXUS<span>.</span></a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="index.html?cat=Electronics">Electronics</a>
+    <a href="index.html?cat=Clothing">Clothing</a>
+    <a href="index.html?cat=Accessories">Accessories</a>
+  </div>
+  <div class="nav-actions">
+    <a href="cart.html" class="nav-icon-btn" title="Cart">
+      🛒
+      <span class="cart-badge hidden" id="cart-badge">0</span>
+    </a>
+    <div style="display:flex;align-items:center;gap:0.5rem" id="nav-auth"></div>
+  </div>
+</nav>
+
+<!-- ─── Main ─── -->
+<main class="page-container">
+  <h1 class="page-title">🛒 My Cart</h1>
+
+  <!-- Not logged in -->
+  <div class="empty-state hidden" id="not-logged-in">
+    <div class="empty-icon">🔐</div>
+    <h3>Please Sign In</h3>
+    <p>Login to view your cart items.</p>
+    <a href="login.html?redirect=cart.html" class="btn btn-primary mt-2">Login to Continue</a>
+  </div>
+
+  <!-- Loading -->
+  <div id="cart-loading">
+    <div style="display:flex;flex-direction:column;gap:1rem">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;display:flex;gap:1.25rem;align-items:center">
+        <div class="skeleton" style="width:90px;height:90px;border-radius:var(--radius-md);flex-shrink:0"></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:0.75rem">
+          <div class="skeleton" style="height:16px;width:60%"></div>
+          <div class="skeleton" style="height:14px;width:30%"></div>
+          <div class="skeleton" style="height:34px;width:120px;border-radius:8px"></div>
+        </div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;display:flex;gap:1.25rem;align-items:center">
+        <div class="skeleton" style="width:90px;height:90px;border-radius:var(--radius-md);flex-shrink:0"></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:0.75rem">
+          <div class="skeleton" style="height:16px;width:60%"></div>
+          <div class="skeleton" style="height:14px;width:30%"></div>
+          <div class="skeleton" style="height:34px;width:120px;border-radius:8px"></div>
+        </div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;display:flex;gap:1.25rem;align-items:center">
+        <div class="skeleton" style="width:90px;height:90px;border-radius:var(--radius-md);flex-shrink:0"></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:0.75rem">
+          <div class="skeleton" style="height:16px;width:60%"></div>
+          <div class="skeleton" style="height:14px;width:30%"></div>
+          <div class="skeleton" style="height:34px;width:120px;border-radius:8px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty Cart -->
+  <div class="empty-state hidden" id="cart-empty">
+    <div class="empty-icon">🛒</div>
+    <h3>Your Cart is Empty</h3>
+    <p>Looks like you haven't added anything yet. Start exploring!</p>
+    <a href="index.html" class="btn btn-primary mt-2">🛍️ Browse Products</a>
+  </div>
+
+  <!-- Cart content -->
+  <div class="cart-layout hidden" id="cart-content">
+    <!-- Items list -->
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+        <span style="color:var(--text-secondary);font-size:0.9rem" id="cart-item-label"></span>
+        <button class="btn-danger" style="padding:0.4rem 0.9rem;border-radius:var(--radius-sm);font-size:0.82rem;font-weight:600;background:var(--danger-bg);color:var(--danger);border:1px solid rgba(255,82,82,0.2);cursor:pointer" onclick="clearCart()">
+          🗑️ Clear All
+        </button>
+      </div>
+      <div id="cart-items-list"></div>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="order-summary">
+      <h3 class="summary-title">Order Summary</h3>
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <span id="s-subtotal">₹0</span>
+      </div>
+      <div class="summary-row">
+        <span>Tax (18% GST)</span>
+        <span id="s-tax">₹0</span>
+      </div>
+      <div class="summary-row">
+        <span>Shipping</span>
+        <span id="s-shipping">₹99</span>
+      </div>
+      <div class="summary-row" id="free-ship-row" style="display:none">
+        <span>Shipping Discount</span>
+        <span class="free-ship-badge">FREE</span>
+      </div>
+      <div class="summary-row total">
+        <span>Total</span>
+        <span id="s-total">₹0</span>
+      </div>
+
+      <div class="coupon-row">
+        <input type="text" class="coupon-input" placeholder="Promo code" id="coupon-input" />
+        <button class="btn btn-secondary" style="padding:0.6rem 1rem;font-size:0.85rem" onclick="applyCoupon()">Apply</button>
+      </div>
+
+      <a href="checkout.html" class="btn btn-primary btn-full btn-lg" id="checkout-btn" style="margin-top:0.5rem;text-align:center">
+        Proceed to Checkout →
+      </a>
+
+      <div style="margin-top:1rem;text-align:center;font-size:0.8rem;color:var(--text-muted)">
+        🔒 Secure SSL encrypted checkout
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="js/api.js"></script>
+<script>
+  let cartData = null;
+
+  async function loadCart() {
+    if (!Auth.isLoggedIn()) {
+      document.getElementById('cart-loading').classList.add('hidden');
+      document.getElementById('not-logged-in').classList.remove('hidden');
+      return;
+    }
+
+    try {
+      cartData = await Cart.get();
+      document.getElementById('cart-loading').classList.add('hidden');
+
+      if (cartData.items.length === 0) {
+        document.getElementById('cart-empty').classList.remove('hidden');
+        return;
+      }
+
+      renderCart();
+      document.getElementById('cart-content').classList.remove('hidden');
+    } catch (err) {
+      document.getElementById('cart-loading').innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">⚠️</div>
+          <h3>Failed to load cart</h3>
+          <p>Make sure the backend server is running</p>
+          <button class="btn btn-secondary mt-2" onclick="loadCart()">Retry</button>
+        </div>`;
+    }
+  }
+
+  function renderCart() {
+    const list = document.getElementById('cart-items-list');
+    list.innerHTML = cartData.items.map(item => `
+      <div class="cart-item-card" id="cart-item-${item.productId}">
+        <img class="cart-item-img" src="${item.product.image}" alt="${item.product.name}" onerror="this.src='https://via.placeholder.com/90x90/16181f/7c4dff?text=?'" />
+        <div class="cart-item-info">
+          <div class="cart-item-name">${item.product.name}</div>
+          <div class="cart-item-category">${item.product.category}</div>
+          <div class="qty-control">
+            <button class="qty-btn" onclick="changeQty('${item.productId}', ${item.quantity - 1})">−</button>
+            <span class="qty-value" id="qty-${item.productId}">${item.quantity}</span>
+            <button class="qty-btn" onclick="changeQty('${item.productId}', ${item.quantity + 1})">+</button>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.75rem">
+          <div class="cart-item-price">${formatPrice(item.product.price * item.quantity)}</div>
+          <div style="font-size:0.78rem;color:var(--text-muted)">${formatPrice(item.product.price)} each</div>
+          <button class="cart-item-remove" onclick="removeItem('${item.productId}')" title="Remove">🗑️</button>
+        </div>
+      </div>
+    `).join('');
+
+    const count = cartData.itemCount;
+    document.getElementById('cart-item-label').textContent = `${count} item${count !== 1 ? 's' : ''} in your cart`;
+
+    updateSummary();
+  }
+
+  function updateSummary() {
+    const subtotal = cartData.total;
+    const tax = Math.round(subtotal * 0.18);
+    const shipping = subtotal >= 999 ? 0 : 99;
+    const total = subtotal + tax + shipping;
+
+    document.getElementById('s-subtotal').textContent = formatPrice(subtotal);
+    document.getElementById('s-tax').textContent = formatPrice(tax);
+    document.getElementById('s-shipping').textContent = shipping === 0 ? '—' : formatPrice(shipping);
+    document.getElementById('s-total').textContent = formatPrice(total);
+
+    const freeRow = document.getElementById('free-ship-row');
+    freeRow.style.display = shipping === 0 ? 'flex' : 'none';
+  }
+
+  async function changeQty(productId, newQty) {
+    if (newQty < 1) { removeItem(productId); return; }
+    try {
+      await Cart.update(productId, newQty);
+      const item = cartData.items.find(i => i.productId === productId);
+      if (item) {
+        item.quantity = newQty;
+        cartData.total = cartData.items.reduce((s, i) => s + i.product.price * i.quantity, 0);
+        cartData.itemCount = cartData.items.reduce((s, i) => s + i.quantity, 0);
+        document.getElementById(`qty-${productId}`).textContent = newQty;
+        // Refresh the price cell
+        const card = document.getElementById(`cart-item-${productId}`);
+        if (card) {
+          const priceEl = card.querySelector('.cart-item-price');
+          if (priceEl) priceEl.textContent = formatPrice(item.product.price * newQty);
+        }
+        updateSummary();
+        updateCartBadge();
+      }
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  }
+
+  async function removeItem(productId) {
+    try {
+      await Cart.remove(productId);
+      cartData.items = cartData.items.filter(i => i.productId !== productId);
+      cartData.total = cartData.items.reduce((s, i) => s + i.product.price * i.quantity, 0);
+      cartData.itemCount = cartData.items.reduce((s, i) => s + i.quantity, 0);
+
+      const el = document.getElementById(`cart-item-${productId}`);
+      if (el) { el.style.opacity = '0'; el.style.transform = 'translateX(-20px)'; setTimeout(() => el.remove(), 300); }
+
+      showToast('Item removed from cart', 'info');
+      updateCartBadge();
+
+      if (cartData.items.length === 0) {
+        setTimeout(() => {
+          document.getElementById('cart-content').classList.add('hidden');
+          document.getElementById('cart-empty').classList.remove('hidden');
+        }, 350);
+      } else {
+        updateSummary();
+        document.getElementById('cart-item-label').textContent =
+          `${cartData.itemCount} item${cartData.itemCount !== 1 ? 's' : ''} in your cart`;
+      }
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  }
+
+  async function clearCart() {
+    if (!confirm('Remove all items from cart?')) return;
+    try {
+      await Cart.clear();
+      showToast('Cart cleared', 'info');
+      document.getElementById('cart-content').classList.add('hidden');
+      document.getElementById('cart-empty').classList.remove('hidden');
+      updateCartBadge();
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  }
+
+  function applyCoupon() {
+    const code = document.getElementById('coupon-input').value.trim().toUpperCase();
+    if (code === 'NEXUS10') showToast('Coupon applied! Feature coming soon 🎉', 'success');
+    else showToast('Invalid coupon code', 'error');
+  }
+
+  loadCart();
+</script>
+</body>
+</html>

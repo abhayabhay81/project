@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout — NEXUS SHOP</title>
+  <meta name="description" content="Complete your order with secure checkout." />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<!-- ─── Navbar ─── -->
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">NEXUS<span>.</span></a>
+  <div class="nav-actions">
+    <a href="cart.html" class="nav-icon-btn" title="Cart">
+      🛒
+      <span class="cart-badge hidden" id="cart-badge">0</span>
+    </a>
+    <div style="display:flex;align-items:center;gap:0.5rem" id="nav-auth"></div>
+  </div>
+</nav>
+
+<!-- ─── Progress ─── -->
+<div style="background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:1rem 5%">
+  <div style="display:flex;align-items:center;gap:1rem;max-width:900px;margin:0 auto;font-size:0.85rem">
+    <span style="color:var(--text-muted)">🛒 Cart</span>
+    <span style="color:var(--text-muted);flex:1;height:1px;background:var(--border);display:block"></span>
+    <span style="color:var(--accent-light);font-weight:600">📋 Checkout</span>
+    <span style="color:var(--text-muted);flex:1;height:1px;background:var(--border);display:block"></span>
+    <span style="color:var(--text-muted)">✅ Confirmation</span>
+  </div>
+</div>
+
+<!-- ─── Main ─── -->
+<main class="page-container">
+  <h1 class="page-title">Checkout</h1>
+
+  <!-- Not logged in -->
+  <div class="empty-state hidden" id="not-logged-in">
+    <div class="empty-icon">🔐</div>
+    <h3>Please Sign In</h3>
+    <p>You need to be logged in to checkout.</p>
+    <a href="login.html?redirect=checkout.html" class="btn btn-primary mt-2">Login to Continue</a>
+  </div>
+
+  <!-- Success State -->
+  <div class="success-container hidden" id="order-success">
+    <div class="success-icon">✅</div>
+    <h2 style="margin-bottom:0.5rem">Order Placed Successfully!</h2>
+    <p style="color:var(--text-secondary);margin-bottom:0.5rem">Your order has been confirmed and is being processed.</p>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:2rem">Estimated delivery: <strong id="estimated-delivery" style="color:var(--text-primary)"></strong></p>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center">
+      <a href="orders.html" class="btn btn-primary">📦 View My Orders</a>
+      <a href="index.html" class="btn btn-secondary">🛍️ Continue Shopping</a>
+    </div>
+  </div>
+
+  <!-- Checkout Form -->
+  <div class="checkout-layout" id="checkout-content">
+    <!-- Left: Forms -->
+    <div>
+      <!-- Shipping Address -->
+      <div class="checkout-section">
+        <h3 class="checkout-section-title">
+          <span class="step-num">1</span> Shipping Address
+        </h3>
+        <div style="display:flex;flex-direction:column;gap:1rem">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="full-name">Full Name</label>
+              <input class="form-input" type="text" id="full-name" placeholder="Abhay Sharma" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="phone">Phone Number</label>
+              <input class="form-input" type="tel" id="phone" placeholder="+91 98765 43210" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="address">Address</label>
+            <input class="form-input" type="text" id="address" placeholder="House No., Street Name" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="city">City</label>
+              <input class="form-input" type="text" id="city" placeholder="Mumbai" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="state">State</label>
+              <input class="form-input" type="text" id="state" placeholder="Maharashtra" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="pincode">PIN Code</label>
+              <input class="form-input" type="text" id="pincode" placeholder="400001" maxlength="6" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="country">Country</label>
+              <input class="form-input" type="text" id="country" value="India" readonly style="opacity:0.7" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Method -->
+      <div class="checkout-section">
+        <h3 class="checkout-section-title">
+          <span class="step-num">2</span> Payment Method
+        </h3>
+
+        <label class="payment-option selected" id="pay-cod">
+          <input type="radio" name="payment" value="Cash on Delivery" checked onchange="selectPayment(this)" />
+          <span style="font-size:1.3rem">💵</span>
+          <div>
+            <div style="font-weight:600">Cash on Delivery</div>
+            <div style="font-size:0.8rem;color:var(--text-muted)">Pay when your order arrives</div>
+          </div>
+        </label>
+
+        <label class="payment-option" id="pay-upi">
+          <input type="radio" name="payment" value="UPI" onchange="selectPayment(this)" />
+          <span style="font-size:1.3rem">📱</span>
+          <div>
+            <div style="font-weight:600">UPI Payment</div>
+            <div style="font-size:0.8rem;color:var(--text-muted)">PhonePe, GPay, Paytm, etc.</div>
+          </div>
+        </label>
+
+        <label class="payment-option" id="pay-card">
+          <input type="radio" name="payment" value="Card" onchange="selectPayment(this)" />
+          <span style="font-size:1.3rem">💳</span>
+          <div>
+            <div style="font-weight:600">Credit / Debit Card</div>
+            <div style="font-size:0.8rem;color:var(--text-muted)">Visa, Mastercard, RuPay</div>
+          </div>
+        </label>
+
+        <label class="payment-option" id="pay-netbanking">
+          <input type="radio" name="payment" value="Net Banking" onchange="selectPayment(this)" />
+          <span style="font-size:1.3rem">🏦</span>
+          <div>
+            <div style="font-weight:600">Net Banking</div>
+            <div style="font-size:0.8rem;color:var(--text-muted)">All major banks supported</div>
+          </div>
+        </label>
+
+        <!-- Security note -->
+        <div style="margin-top:1rem;padding:0.75rem 1rem;background:var(--bg-glass);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:0.8rem;color:var(--text-muted);display:flex;align-items:center;gap:0.5rem">
+          🔒 All transactions are 256-bit SSL encrypted and 100% secure
+        </div>
+      </div>
+
+      <!-- error -->
+      <div id="checkout-error" class="alert alert-error hidden">
+        <span>⚠️</span><span id="checkout-error-msg"></span>
+      </div>
+
+      <button class="btn btn-primary btn-full btn-lg" id="place-order-btn" onclick="placeOrder()">
+        ✅ Place Order
+      </button>
+    </div>
+
+    <!-- Right: Order Summary -->
+    <div>
+      <div class="order-summary" style="position:sticky;top:calc(var(--nav-height) + 5rem)">
+        <h3 class="summary-title">Order Summary</h3>
+        <div id="checkout-items-list" style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1.25rem;max-height:300px;overflow-y:auto"></div>
+        <div style="border-top:1px solid var(--border);padding-top:1rem">
+          <div class="summary-row"><span>Subtotal</span><span id="co-subtotal">₹0</span></div>
+          <div class="summary-row"><span>Tax (18% GST)</span><span id="co-tax">₹0</span></div>
+          <div class="summary-row"><span>Shipping</span><span id="co-shipping">₹99</span></div>
+          <div class="summary-row total"><span>Total</span><span id="co-total">₹0</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="js/api.js"></script>
+<script>
+  if (!Auth.isLoggedIn()) {
+    document.getElementById('checkout-content').classList.add('hidden');
+    document.getElementById('not-logged-in').classList.remove('hidden');
+  }
+
+  function selectPayment(radio) {
+    document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
+    radio.closest('.payment-option').classList.add('selected');
+  }
+
+  async function loadCheckoutSummary() {
+    if (!Auth.isLoggedIn()) return;
+    try {
+      const data = await Cart.get();
+      if (data.items.length === 0) { window.location = 'cart.html'; return; }
+
+      const list = document.getElementById('checkout-items-list');
+      list.innerHTML = data.items.map(i => `
+        <div style="display:flex;align-items:center;gap:0.75rem">
+          <img src="${i.product.image}" style="width:48px;height:48px;border-radius:var(--radius-sm);object-fit:cover;flex-shrink:0" />
+          <div style="flex:1;min-width:0">
+            <div style="font-size:0.85rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${i.product.name}</div>
+            <div style="font-size:0.78rem;color:var(--text-muted)">Qty: ${i.quantity}</div>
+          </div>
+          <div style="font-size:0.9rem;font-weight:600;flex-shrink:0">${formatPrice(i.product.price * i.quantity)}</div>
+        </div>
+      `).join('');
+
+      const subtotal = data.total;
+      const tax = Math.round(subtotal * 0.18);
+      const shipping = subtotal >= 999 ? 0 : 99;
+      const total = subtotal + tax + shipping;
+
+      document.getElementById('co-subtotal').textContent = formatPrice(subtotal);
+      document.getElementById('co-tax').textContent = formatPrice(tax);
+      document.getElementById('co-shipping').textContent = shipping === 0 ? 'FREE' : formatPrice(shipping);
+      document.getElementById('co-total').textContent = formatPrice(total);
+
+      // Pre-fill user name
+      const user = getUser();
+      if (user) document.getElementById('full-name').value = user.name;
+    } catch (err) {
+      showToast('Failed to load cart', 'error');
+    }
+  }
+
+  async function placeOrder() {
+    const btn = document.getElementById('place-order-btn');
+    const errBox = document.getElementById('checkout-error');
+    const errMsg = document.getElementById('checkout-error-msg');
+
+    const fullName = document.getElementById('full-name').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const address = document.getElementById('address').value.trim();
+    const city = document.getElementById('city').value.trim();
+    const state = document.getElementById('state').value.trim();
+    const pincode = document.getElementById('pincode').value.trim();
+
+    const showErr = (msg) => {
+      errMsg.textContent = msg;
+      errBox.classList.remove('hidden');
+      errBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
+
+    errBox.classList.add('hidden');
+
+    if (!fullName || !phone || !address || !city || !state || !pincode) {
+      return showErr('Please fill in all shipping address fields.');
+    }
+    if (!/^\d{6}$/.test(pincode)) return showErr('Please enter a valid 6-digit PIN code.');
+
+    const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value;
+    const shippingAddress = { fullName, phone, address, city, state, pincode, country: 'India' };
+
+    btn.innerHTML = '<span class="loader"></span> Placing Order…';
+    btn.disabled = true;
+
+    try {
+      const data = await Orders.place(shippingAddress, paymentMethod);
+      document.getElementById('checkout-content').classList.add('hidden');
+
+      const estDate = new Date(data.order.estimatedDelivery).toLocaleDateString('en-IN', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      });
+      document.getElementById('estimated-delivery').textContent = estDate;
+      document.getElementById('order-success').classList.remove('hidden');
+      document.getElementById('order-success').scrollIntoView({ behavior: 'smooth' });
+      updateCartBadge();
+    } catch (err) {
+      showErr(err.message);
+      btn.innerHTML = '✅ Place Order';
+      btn.disabled = false;
+    }
+  }
+
+  loadCheckoutSummary();
+</script>
+</body>
+</html>

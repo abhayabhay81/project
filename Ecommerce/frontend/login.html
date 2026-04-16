@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — NEXUS SHOP</title>
+  <meta name="description" content="Login to your NEXUS account to access your cart and orders." />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<div class="auth-page">
+  <div class="auth-card">
+    <!-- Glow effect -->
+
+    
+    <div style="position:absolute;bottom:-80px;left:-80px;width:250px;height:250px;background:radial-gradient(circle,rgba(124,77,255,0.12) 0%,transparent 70%);pointer-events:none"></div>
+
+    <div class="auth-logo">NEXUS.</div>
+    <p class="auth-subtitle">Welcome back! Sign in to continue shopping.</p>
+
+    <div id="alert-box" class="alert alert-error hidden" style="margin-bottom:1rem">
+      <span>⚠️</span><span id="alert-msg"></span>
+    </div>
+
+    <form class="auth-form" id="login-form" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address</label>
+        <input class="form-input" type="email" id="email" placeholder="you@example.com" required autocomplete="email" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input class="form-input" type="password" id="password" placeholder="••••••••" required autocomplete="current-password" />
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" id="login-btn">
+        Sign In
+      </button>
+    </form>
+
+    <div class="auth-divider"><span>OR</span></div>
+
+    <!-- Demo account hint -->
+    <div style="background:var(--bg-glass);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.75rem 1rem;font-size:0.8rem;color:var(--text-muted);text-align:center">
+      💡 No account yet? <a href="register.html" style="color:var(--accent-light);font-weight:600">Create one free →</a>
+    </div>
+
+    <div class="auth-footer">
+      Don't have an account? <a href="register.html">Sign Up</a>
+    </div>
+    <div style="text-align:center;margin-top:1rem">
+      <a href="index.html" style="color:var(--text-muted);font-size:0.85rem">← Back to Shop</a>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+  // Redirect if already logged in
+  if (Auth.isLoggedIn()) window.location = 'index.html';
+
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const btn = document.getElementById('login-btn');
+    const alertBox = document.getElementById('alert-box');
+    const alertMsg = document.getElementById('alert-msg');
+
+    if (!email || !password) {
+      alertMsg.textContent = 'Please fill in all fields.';
+      alertBox.classList.remove('hidden');
+      return;
+    }
+
+    btn.innerHTML = '<span class="loader"></span> Signing in…';
+    btn.disabled = true;
+    alertBox.classList.add('hidden');
+
+    try {
+      const data = await Auth.login(email, password);
+      Auth.saveSession(data.token, data.user);
+      showToast(`Welcome back, ${data.user.name.split(' ')[0]}! 🎉`, 'success');
+
+      const redirect = new URLSearchParams(window.location.search).get('redirect') || 'index.html';
+      setTimeout(() => window.location = redirect, 1000);
+    } catch (err) {
+      alertMsg.textContent = err.message;
+      alertBox.classList.remove('hidden');
+      btn.innerHTML = 'Sign In';
+      btn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

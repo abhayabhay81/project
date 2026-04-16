@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEXUS SHOP — Premium Online Store</title>
+  <meta name="description" content="Discover premium electronics, clothing, and accessories at unbeatable prices. Shop NEXUS — your premium dark-themed e-commerce destination." />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<!-- ─── Navbar ─── -->
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">NEXUS<span>.</span></a>
+  <div class="nav-links">
+    <a href="index.html" class="active" id="nav-home">Home</a>
+    <a href="index.html?cat=Electronics">Electronics</a>
+    <a href="index.html?cat=Clothing">Clothing</a>
+    <a href="index.html?cat=Accessories">Accessories</a>
+    <a href="orders.html">My Orders</a>
+  </div>
+  <div class="nav-actions">
+    <div class="nav-search">
+      <span>🔍</span>
+      <input type="text" id="search-input" placeholder="Search products..." />
+    </div>
+    <a href="cart.html" class="nav-icon-btn" id="cart-nav-btn" title="Cart">
+      🛒
+      <span class="cart-badge hidden" id="cart-badge">0</span>
+    </a>
+    <div style="display:flex;align-items:center;gap:0.5rem" id="nav-auth"></div>
+  </div>
+</nav>
+
+<!-- ─── Hero ─── -->
+<section class="hero">
+  <div class="hero-badge">✨ New arrivals every week</div>
+  <h1>Shop the <span class="gradient-text">Future</span> of Fashion &amp; Tech</h1>
+  <p>Discover handpicked premium products across electronics, clothing, and accessories — curated just for you.</p>
+  <div class="hero-actions">
+    <button class="btn btn-primary btn-lg" onclick="document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">
+      🛍️ Shop Now
+    </button>
+    <a href="register.html" class="btn btn-secondary btn-lg">Create Account →</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-value">12+</div><div class="stat-label">Products</div></div>
+    <div class="stat"><div class="stat-value">3</div><div class="stat-label">Categories</div></div>
+    <div class="stat"><div class="stat-value">4.5★</div><div class="stat-label">Avg Rating</div></div>
+    <div class="stat"><div class="stat-value">Free</div><div class="stat-label">Ship ₹999+</div></div>
+  </div>
+</section>
+
+<!-- ─── Products Section ─── -->
+<section class="section" id="products-section">
+  <div class="section-header">
+    <div>
+      <h2 class="section-title">Our Products</h2>
+      <p style="color:var(--text-muted);font-size:0.9rem;margin-top:0.25rem" id="product-count"></p>
+    </div>
+    <select id="sort-select" class="form-input" style="width:auto;padding:0.45rem 0.9rem;font-size:0.85rem">
+      <option value="">Sort: Featured</option>
+      <option value="price-asc">Price: Low to High</option>
+      <option value="price-desc">Price: High to Low</option>
+      <option value="rating">Highest Rated</option>
+    </select>
+  </div>
+
+  <div class="category-filter">
+    <button class="cat-btn active" data-cat="All">All</button>
+    <button class="cat-btn" data-cat="Electronics">⚡ Electronics</button>
+    <button class="cat-btn" data-cat="Clothing">👕 Clothing</button>
+    <button class="cat-btn" data-cat="Accessories">💼 Accessories</button>
+  </div>
+
+  <div class="products-grid" id="products-grid">
+    <!-- Skeleton loaders -->
+    ${Array(8).fill(0).map(() => `
+      <div style="border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border)">
+        <div class="skeleton" style="height:220px"></div>
+        <div style="padding:1.25rem;display:flex;flex-direction:column;gap:0.75rem">
+          <div class="skeleton" style="height:14px;width:60%"></div>
+          <div class="skeleton" style="height:18px"></div>
+          <div class="skeleton" style="height:14px;width:40%"></div>
+          <div class="skeleton" style="height:36px;border-radius:8px;margin-top:0.5rem"></div>
+        </div>
+      </div>
+    `).join('')}
+  </div>
+</section>
+
+<!-- ─── Features Banner ─── -->
+<section style="background:var(--bg-secondary);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:3rem 5%">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem;max-width:1100px;margin:0 auto">
+    <div style="text-align:center">
+      <div style="font-size:2rem;margin-bottom:0.75rem">🚚</div>
+      <h4>Free Shipping</h4>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.25rem">On orders above ₹999</p>
+    </div>
+    <div style="text-align:center">
+      <div style="font-size:2rem;margin-bottom:0.75rem">🔒</div>
+      <h4>Secure Payments</h4>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.25rem">100% safe & encrypted</p>
+    </div>
+    <div style="text-align:center">
+      <div style="font-size:2rem;margin-bottom:0.75rem">↩️</div>
+      <h4>Easy Returns</h4>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.25rem">30-day return policy</p>
+    </div>
+    <div style="text-align:center">
+      <div style="font-size:2rem;margin-bottom:0.75rem">🎧</div>
+      <h4>24/7 Support</h4>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.25rem">Always here to help</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Footer ─── -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="nav-logo">NEXUS<span>.</span></div>
+      <p>Your premium dark-themed e-commerce destination. Curated products, exceptional quality, delivered fast.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <a href="index.html?cat=Electronics">Electronics</a>
+      <a href="index.html?cat=Clothing">Clothing</a>
+      <a href="index.html?cat=Accessories">Accessories</a>
+    </div>
+    <div class="footer-col">
+      <h4>Account</h4>
+      <a href="login.html">Login</a>
+      <a href="register.html">Register</a>
+      <a href="orders.html">My Orders</a>
+      <a href="cart.html">My Cart</a>
+    </div>
+    <div class="footer-col">
+      <h4>Help</h4>
+      <a href="#">FAQ</a>
+      <a href="#">Shipping</a>
+      <a href="#">Returns</a>
+      <a href="#">Contact Us</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2024 Nexus Shop. All rights reserved.</span>
+    <span>Made with 💜 for great shopping experiences</span>
+  </div>
+</footer>
+
+<script src="js/api.js"></script>
+<script>
+  let allProducts = [];
+  let activeCategory = 'All';
+
+  // Check URL for category param
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlCat = urlParams.get('cat');
+  if (urlCat) activeCategory = urlCat;
+
+  async function loadProducts() {
+    const grid = document.getElementById('products-grid');
+    const searchVal = document.getElementById('search-input').value.trim();
+    const sortVal = document.getElementById('sort-select').value;
+
+    const params = {};
+    if (activeCategory !== 'All') params.category = activeCategory;
+    if (searchVal) params.search = searchVal;
+    if (sortVal) params.sort = sortVal;
+
+    try {
+      const data = await Products.getAll(params);
+      allProducts = data.products;
+      document.getElementById('product-count').textContent = `Showing ${allProducts.length} product${allProducts.length !== 1 ? 's' : ''}`;
+
+      if (allProducts.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state" style="grid-column:1/-1">
+            <div class="empty-icon">🔍</div>
+            <h3>No Products Found</h3>
+            <p>Try adjusting your search or category filter</p>
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = allProducts.map(buildProductCard).join('');
+    } catch (err) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+        <div class="empty-icon">⚠️</div>
+        <h3>Failed to load products</h3>
+        <p>Make sure the backend server is running on port 5000</p>
+        <button class="btn btn-secondary mt-2" onclick="loadProducts()">Retry</button>
+      </div>`;
+    }
+  }
+
+  // Category buttons
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    if (btn.dataset.cat === activeCategory) btn.classList.add('active');
+    else btn.classList.remove('active');
+
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeCategory = btn.dataset.cat;
+      loadProducts();
+    });
+  });
+
+  // Search with debounce
+  let searchTimer;
+  document.getElementById('search-input').addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(loadProducts, 350);
+  });
+
+  document.getElementById('sort-select').addEventListener('change', loadProducts);
+
+  loadProducts();
+</script>
+</body>
+</html>

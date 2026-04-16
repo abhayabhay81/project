@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account — NEXUS SHOP</title>
+  <meta name="description" content="Create your free NEXUS account to start shopping premium products." />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<div class="auth-page">
+  <div class="auth-card" style="max-width:480px">
+    <div style="position:absolute;top:-80px;right:-80px;width:250px;height:250px;background:radial-gradient(circle,rgba(224,64,251,0.1) 0%,transparent 70%);pointer-events:none"></div>
+
+    <div class="auth-logo">NEXUS.</div>
+    <p class="auth-subtitle">Create your free account and start shopping.</p>
+
+    <div id="alert-box" class="alert alert-error hidden" style="margin-bottom:1rem">
+      <span>⚠️</span><span id="alert-msg"></span>
+    </div>
+
+    <form class="auth-form" id="register-form" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="name">Full Name</label>
+        <input class="form-input" type="text" id="name" placeholder="Abhay Sharma" required autocomplete="name" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address</label>
+        <input class="form-input" type="email" id="email" placeholder="you@example.com" required autocomplete="email" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input class="form-input" type="password" id="password" placeholder="Min. 6 characters" required autocomplete="new-password" />
+        <div id="pw-strength" style="height:4px;border-radius:10px;background:var(--border);margin-top:0.4rem;overflow:hidden">
+          <div id="pw-bar" style="height:100%;width:0%;border-radius:10px;transition:all 0.4s ease"></div>
+        </div>
+        <span id="pw-label" style="font-size:0.75rem;color:var(--text-muted)"></span>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="confirm">Confirm Password</label>
+        <input class="form-input" type="password" id="confirm" placeholder="Re-enter password" required />
+      </div>
+
+      <!-- Terms -->
+      <label style="display:flex;align-items:flex-start;gap:0.6rem;font-size:0.83rem;color:var(--text-muted);cursor:pointer">
+        <input type="checkbox" id="terms" style="margin-top:2px;accent-color:var(--accent);width:16px;height:16px" />
+        I agree to the <a href="#" style="color:var(--accent-light)">Terms of Service</a> and <a href="#" style="color:var(--accent-light)">Privacy Policy</a>
+      </label>
+
+      <button type="submit" class="btn btn-primary btn-full" id="register-btn">
+        Create Account
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      Already have an account? <a href="login.html">Sign In</a>
+    </div>
+    <div style="text-align:center;margin-top:1rem">
+      <a href="index.html" style="color:var(--text-muted);font-size:0.85rem">← Back to Shop</a>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+  if (Auth.isLoggedIn()) window.location = 'index.html';
+
+  // Password strength indicator
+  document.getElementById('password').addEventListener('input', function () {
+    const val = this.value;
+    const bar = document.getElementById('pw-bar');
+    const label = document.getElementById('pw-label');
+    let strength = 0;
+    if (val.length >= 6) strength++;
+    if (val.length >= 10) strength++;
+    if (/[A-Z]/.test(val)) strength++;
+    if (/[0-9]/.test(val)) strength++;
+    if (/[^a-zA-Z0-9]/.test(val)) strength++;
+
+    const levels = [
+      { w: '0%', c: '', t: '' },
+      { w: '25%', c: 'var(--danger)', t: 'Weak' },
+      { w: '50%', c: 'var(--warning)', t: 'Fair' },
+      { w: '75%', c: 'var(--accent-light)', t: 'Good' },
+      { w: '90%', c: 'var(--success)', t: 'Strong' },
+      { w: '100%', c: 'var(--success)', t: 'Very Strong' }
+    ];
+    const lvl = levels[Math.min(strength, 5)];
+    bar.style.width = lvl.w;
+    bar.style.background = lvl.c;
+    label.textContent = lvl.t;
+    label.style.color = lvl.c;
+  });
+
+  document.getElementById('register-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const confirm = document.getElementById('confirm').value;
+    const terms = document.getElementById('terms').checked;
+    const btn = document.getElementById('register-btn');
+    const alertBox = document.getElementById('alert-box');
+    const alertMsg = document.getElementById('alert-msg');
+
+    const showErr = (msg) => {
+      alertMsg.textContent = msg;
+      alertBox.classList.remove('hidden');
+    };
+
+    alertBox.classList.add('hidden');
+    if (!name || !email || !password || !confirm) return showErr('Please fill in all fields.');
+    if (password.length < 6) return showErr('Password must be at least 6 characters.');
+    if (password !== confirm) return showErr('Passwords do not match.');
+    if (!terms) return showErr('Please accept the Terms of Service.');
+
+    btn.innerHTML = '<span class="loader"></span> Creating account…';
+    btn.disabled = true;
+
+    try {
+      const data = await Auth.register(name, email, password);
+      Auth.saveSession(data.token, data.user);
+      showToast(`Account created! Welcome, ${data.user.name.split(' ')[0]}! 🎉`, 'success');
+      setTimeout(() => window.location = 'index.html', 1200);
+    } catch (err) {
+      showErr(err.message);
+      btn.innerHTML = 'Create Account';
+      btn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

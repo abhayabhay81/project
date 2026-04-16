@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Orders — NEXUS SHOP</title>
+  <meta name="description" content="View your complete order history on NEXUS SHOP." />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<!-- ─── Navbar ─── -->
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">NEXUS<span>.</span></a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="index.html?cat=Electronics">Electronics</a>
+    <a href="index.html?cat=Clothing">Clothing</a>
+    <a href="index.html?cat=Accessories">Accessories</a>
+    <a href="orders.html" class="active">My Orders</a>
+  </div>
+  <div class="nav-actions">
+    <a href="cart.html" class="nav-icon-btn" title="Cart">
+      🛒
+      <span class="cart-badge hidden" id="cart-badge">0</span>
+    </a>
+    <div style="display:flex;align-items:center;gap:0.5rem" id="nav-auth"></div>
+  </div>
+</nav>
+
+<main class="page-container">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem">
+    <h1>📦 My Orders</h1>
+    <a href="index.html" class="btn btn-secondary">🛍️ Continue Shopping</a>
+  </div>
+
+  <!-- Not logged in -->
+  <div class="empty-state hidden" id="not-logged-in">
+    <div class="empty-icon">🔐</div>
+    <h3>Please Sign In</h3>
+    <p>Login to view your order history.</p>
+    <a href="login.html?redirect=orders.html" class="btn btn-primary mt-2">Login to Continue</a>
+  </div>
+
+  <!-- Loading -->
+  <div id="orders-loading">
+    ${[1,2].map(() => `
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:1.5rem;overflow:hidden">
+        <div style="background:var(--bg-secondary);padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;gap:1rem">
+          <div class="skeleton" style="height:14px;width:180px"></div>
+          <div class="skeleton" style="height:14px;width:100px;margin-left:auto"></div>
+        </div>
+        <div style="padding:1.5rem;display:flex;flex-direction:column;gap:0.75rem">
+          ${[1,2].map(() => `
+            <div style="display:flex;align-items:center;gap:1rem">
+              <div class="skeleton" style="width:56px;height:56px;border-radius:8px;flex-shrink:0"></div>
+              <div style="flex:1;display:flex;flex-direction:column;gap:0.5rem">
+                <div class="skeleton" style="height:14px;width:70%"></div>
+                <div class="skeleton" style="height:12px;width:30%"></div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('')}
+  </div>
+
+  <!-- Empty Orders -->
+  <div class="empty-state hidden" id="orders-empty">
+    <div class="empty-icon">📦</div>
+    <h3>No Orders Yet</h3>
+    <p>You haven't placed any orders. Start shopping now!</p>
+    <a href="index.html" class="btn btn-primary mt-2">🛍️ Shop Now</a>
+  </div>
+
+  <!-- Orders List -->
+  <div id="orders-list" class="hidden"></div>
+</main>
+
+<script src="js/api.js"></script>
+<script>
+  async function loadOrders() {
+    if (!Auth.isLoggedIn()) {
+      document.getElementById('orders-loading').classList.add('hidden');
+      document.getElementById('not-logged-in').classList.remove('hidden');
+      return;
+    }
+
+    try {
+      const data = await Orders.getAll();
+      document.getElementById('orders-loading').classList.add('hidden');
+
+      if (data.orders.length === 0) {
+        document.getElementById('orders-empty').classList.remove('hidden');
+        return;
+      }
+
+      const list = document.getElementById('orders-list');
+      list.classList.remove('hidden');
+      list.innerHTML = data.orders.map(order => renderOrderCard(order)).join('');
+    } catch (err) {
+      document.getElementById('orders-loading').innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">⚠️</div>
+          <h3>Failed to load orders</h3>
+          <p>Make sure the server is running</p>
+          <button class="btn btn-secondary mt-2" onclick="loadOrders()">Retry</button>
+        </div>`;
+    }
+  }
+
+  function renderOrderCard(order) {
+    const date = new Date(order.createdAt).toLocaleDateString('en-IN', {
+      day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+
+    const estDelivery = new Date(order.estimatedDelivery).toLocaleDateString('en-IN', {
+      weekday: 'short', day: 'numeric', month: 'short'
+    });
+
+    const statusClass = {
+      'Confirmed': 'confirmed',
+      'Processing': 'processing',
+      'Shipped': 'shipped'
+    }[order.status] || 'confirmed';
+
+    const itemsHtml = order.items.slice(0, 3).map(item => `
+      <div class="order-item">
+        <img src="${item.image}" class="order-item-img" alt="${item.name}" onerror="this.src='https://via.placeholder.com/56x56/16181f/7c4dff?text=?'" />
+        <div style="flex:1;min-width:0">
+          <div class="order-item-name">${item.name}</div>
+          <div class="order-item-qty">Qty: ${item.quantity} × ${formatPrice(item.price)}</div>
+        </div>
+        <div class="order-item-price">${formatPrice(item.subtotal)}</div>
+      </div>
+    `).join('');
+
+    const moreItems = order.items.length > 3
+      ? `<div style="font-size:0.82rem;color:var(--text-muted);padding-top:0.25rem">+${order.items.length - 3} more item(s)</div>`
+      : '';
+
+    return `
+      <div class="order-card">
+        <div class="order-card-header">
+          <div>
+            <div class="order-id">Order #${order.id.split('-')[0].toUpperCase()}</div>
+            <div class="order-date">${date}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap">
+            <span class="order-status status-${statusClass}">${order.status}</span>
+            <span style="font-size:0.8rem;color:var(--text-muted)">Est. ${estDelivery}</span>
+          </div>
+        </div>
+        <div class="order-card-body">
+          <div style="margin-bottom:1rem">
+            <span style="font-size:0.8rem;color:var(--text-muted)">📍 ${order.shippingAddress.address}, ${order.shippingAddress.city}, ${order.shippingAddress.state} - ${order.shippingAddress.pincode}</span>
+          </div>
+          <div style="margin-bottom:0.5rem;font-size:0.8rem;color:var(--text-muted)">💳 ${order.paymentMethod}</div>
+          <div class="order-items-list">
+            ${itemsHtml}
+            ${moreItems}
+          </div>
+        </div>
+        <div class="order-card-footer">
+          <div>
+            <div class="order-total-label">Order Total</div>
+            <div style="font-size:0.78rem;color:var(--text-muted)">Incl. GST & shipping</div>
+          </div>
+          <div class="order-total-value">${formatPrice(order.total)}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  loadOrders();
+</script>
+</body>
+</html>

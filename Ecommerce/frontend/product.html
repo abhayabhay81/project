@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Detail — NEXUS SHOP</title>
+  <meta name="description" content="View detailed product information, ratings, and add to cart." />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<!-- ─── Navbar ─── -->
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">NEXUS<span>.</span></a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="index.html?cat=Electronics">Electronics</a>
+    <a href="index.html?cat=Clothing">Clothing</a>
+    <a href="index.html?cat=Accessories">Accessories</a>
+    <a href="orders.html">My Orders</a>
+  </div>
+  <div class="nav-actions">
+    <a href="cart.html" class="nav-icon-btn" title="Cart">
+      🛒
+      <span class="cart-badge hidden" id="cart-badge">0</span>
+    </a>
+    <div style="display:flex;align-items:center;gap:0.5rem" id="nav-auth"></div>
+  </div>
+</nav>
+
+<!-- ─── Breadcrumb ─── -->
+<div style="padding:1rem 5%;border-bottom:1px solid var(--border);font-size:0.85rem;color:var(--text-muted)">
+  <a href="index.html" style="color:var(--text-muted)">Home</a>
+  <span style="margin:0 0.5rem">›</span>
+  <span id="breadcrumb-cat" style="color:var(--text-muted)">Products</span>
+  <span style="margin:0 0.5rem">›</span>
+  <span id="breadcrumb-name" style="color:var(--text-primary)">Loading…</span>
+</div>
+
+<!-- ─── Content ─── -->
+<main class="page-container" id="product-detail-main">
+  <!-- Skeleton -->
+  <div class="product-detail-layout" id="product-skeleton">
+    <div class="skeleton" style="border-radius:var(--radius-xl);aspect-ratio:1"></div>
+    <div style="display:flex;flex-direction:column;gap:1rem;padding-top:1rem">
+      <div class="skeleton" style="height:16px;width:30%"></div>
+      <div class="skeleton" style="height:42px;width:80%"></div>
+      <div class="skeleton" style="height:16px;width:50%"></div>
+      <div class="skeleton" style="height:36px;width:40%"></div>
+      <div class="skeleton" style="height:100px"></div>
+      <div class="skeleton" style="height:54px;border-radius:14px"></div>
+    </div>
+  </div>
+
+  <!-- Actual Product -->
+  <div class="product-detail-layout hidden" id="product-content">
+    <div class="product-detail-img">
+      <img id="detail-img" src="" alt="" />
+    </div>
+    <div class="product-detail-info">
+      <div class="product-category" id="detail-cat"></div>
+      <h1 id="detail-name" style="font-size:clamp(1.4rem,3vw,2rem)"></h1>
+      <div class="product-rating" style="font-size:0.9rem">
+        <span class="stars" id="detail-stars"></span>
+        <span id="detail-rating"></span>
+        <span class="rating-count" id="detail-reviews"></span>
+      </div>
+      <div class="product-detail-price" id="detail-price"></div>
+      <div style="display:flex;align-items:center;gap:0.75rem" id="detail-orig-row">
+        <span class="price-original" id="detail-orig"></span>
+        <span class="price-discount" id="detail-disc"></span>
+      </div>
+      <div class="stock-indicator" id="detail-stock">
+        <span class="stock-dot"></span>
+        <span id="detail-stock-text"></span>
+      </div>
+      <p class="product-detail-desc" id="detail-desc"></p>
+
+      <!-- Quantity -->
+      <div>
+        <div class="form-label" style="margin-bottom:0.5rem">Quantity</div>
+        <div class="qty-control">
+          <button class="qty-btn" id="qty-dec">−</button>
+          <span class="qty-value" id="qty-val">1</span>
+          <button class="qty-btn" id="qty-inc">+</button>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div style="display:flex;gap:1rem;flex-wrap:wrap">
+        <button class="btn btn-primary" style="flex:1;min-width:180px" id="detail-add-cart">
+          🛒 Add to Cart
+        </button>
+        <button class="btn btn-secondary" onclick="showToast('Added to wishlist!','success')">♡ Wishlist</button>
+      </div>
+
+      <!-- Delivery info -->
+      <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-md);padding:1rem 1.25rem;display:flex;flex-direction:column;gap:0.6rem">
+        <div style="display:flex;align-items:center;gap:0.75rem;font-size:0.85rem">
+          <span>🚚</span>
+          <span style="color:var(--text-secondary)">Free delivery on orders above <strong style="color:var(--text-primary)">₹999</strong></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.75rem;font-size:0.85rem">
+          <span>↩️</span>
+          <span style="color:var(--text-secondary)">Easy <strong style="color:var(--text-primary)">30-day</strong> return policy</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.75rem;font-size:0.85rem">
+          <span>🔒</span>
+          <span style="color:var(--text-secondary)">100% <strong style="color:var(--text-primary)">secure</strong> payment</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error state -->
+  <div class="empty-state hidden" id="product-error">
+    <div class="empty-icon">⚠️</div>
+    <h3>Product Not Found</h3>
+    <p>This product may no longer be available.</p>
+    <a href="index.html" class="btn btn-primary mt-2">← Back to Shop</a>
+  </div>
+</main>
+
+<script src="js/api.js"></script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const productId = params.get('id');
+  let currentProduct = null;
+  let qty = 1;
+
+  async function loadProduct() {
+    if (!productId) { showError(); return; }
+    try {
+      const p = await Products.getById(productId);
+      currentProduct = p;
+      document.title = `${p.name} — NEXUS SHOP`;
+
+      // Breadcrumb
+      document.getElementById('breadcrumb-cat').textContent = p.category;
+      document.getElementById('breadcrumb-name').textContent = p.name;
+
+      // Fill details
+      document.getElementById('detail-img').src = p.image;
+      document.getElementById('detail-img').alt = p.name;
+      document.getElementById('detail-cat').textContent = p.category;
+      document.getElementById('detail-name').textContent = p.name;
+      document.getElementById('detail-stars').textContent = renderStars(p.rating);
+      document.getElementById('detail-rating').textContent = p.rating;
+      document.getElementById('detail-reviews').textContent = `(${p.reviews} reviews)`;
+      document.getElementById('detail-price').textContent = formatPrice(p.price);
+
+      if (p.originalPrice && p.originalPrice > p.price) {
+        document.getElementById('detail-orig').textContent = formatPrice(p.originalPrice);
+        document.getElementById('detail-disc').textContent = `-${calcDiscount(p.originalPrice, p.price)}% OFF`;
+      } else {
+        document.getElementById('detail-orig-row').style.display = 'none';
+      }
+
+      document.getElementById('detail-stock-text').textContent =
+        p.stock > 10 ? 'In Stock' : p.stock > 0 ? `Only ${p.stock} left!` : 'Out of Stock';
+
+      document.getElementById('detail-desc').textContent = p.description;
+
+      // Show content
+      document.getElementById('product-skeleton').classList.add('hidden');
+      document.getElementById('product-content').classList.remove('hidden');
+    } catch {
+      showError();
+    }
+  }
+
+  function showError() {
+    document.getElementById('product-skeleton').classList.add('hidden');
+    document.getElementById('product-error').classList.remove('hidden');
+  }
+
+  // Quantity controls
+  document.getElementById('qty-dec').addEventListener('click', () => {
+    if (qty > 1) { qty--; document.getElementById('qty-val').textContent = qty; }
+  });
+  document.getElementById('qty-inc').addEventListener('click', () => {
+    const max = currentProduct ? currentProduct.stock : 10;
+    if (qty < max) { qty++; document.getElementById('qty-val').textContent = qty; }
+  });
+
+  // Add to Cart
+  document.getElementById('detail-add-cart').addEventListener('click', async () => {
+    if (!Auth.isLoggedIn()) {
+      showToast('Please login to add items to cart', 'error');
+      setTimeout(() => window.location = 'login.html', 1500);
+      return;
+    }
+    const btn = document.getElementById('detail-add-cart');
+    btn.innerHTML = '<span class="loader"></span> Adding…';
+    btn.disabled = true;
+    try {
+      await Cart.add(productId, qty);
+      btn.innerHTML = '✓ Added to Cart!';
+      btn.style.background = 'var(--success-bg)';
+      btn.style.color = 'var(--success)';
+      btn.style.border = '1px solid rgba(0,230,118,0.3)';
+      showToast('Added to cart!', 'success');
+      updateCartBadge();
+      setTimeout(() => {
+        btn.innerHTML = '🛒 Add to Cart';
+        btn.style.background = '';
+        btn.style.color = '';
+        btn.style.border = '';
+        btn.disabled = false;
+      }, 2500);
+    } catch (err) {
+      showToast(err.message, 'error');
+      btn.innerHTML = '🛒 Add to Cart';
+      btn.disabled = false;
+    }
+  });
+
+  loadProduct();
+</script>
+</body>
+</html>
