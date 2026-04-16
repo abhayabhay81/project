@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Chatbot</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="chat-container">
+        <div style ="margin-bottom: 10px;" id="welcome" style="display:none;"></div>
+        <div id="role-info" style="margin-bottom: 10px; color: #555;"></div>
+        <div id="chat-box" class="chat-box"></div>
+        <form id="chat-form" class="chat-form">
+            <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off" required />
+            <button type="submit">Send</button>
+            <button type="button" id="speak-btn" title="Speak Bot Reply">🔊</button>
+        </form>
+        <button id="logout-btn" style="margin-top:10px;">Logout</button>
+    </div>
+    <script src="script.js"></script>
+    <script>
+    // Redirect to login if not logged in
+    const username = localStorage.getItem('chatbot_username');
+    const role = localStorage.getItem('chatbot_role');
+    if (!username || !role) {
+        window.location.href = 'login.html';
+    } else {
+        // Show role info
+        const roleDiv = document.getElementById('role-info');
+        if (roleDiv) {
+            roleDiv.textContent = `Role: ${role}`;
+        }
+    }
+    </script>
+</body>
+</html>
